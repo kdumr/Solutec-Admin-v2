@@ -17,7 +17,7 @@ O projeto ainda está em desenvolvimento e as próximas atualizações serão vo
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 
-- Ter a versão mais recente do [Python](https://www.python.org/downloads/){:target="_blank"} instalado em sua máquina.
+- Ter a versão mais recente do [Python](https://www.python.org/downloads/) instalado em sua máquina.
 - Possuir o sistema operacional `< Windows >`.
 
 ## 🚀 Instalando <Solutec ADmin>
