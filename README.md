@@ -20,7 +20,7 @@ Antes de começar, verifique se você atendeu aos seguintes requisitos:
 - Ter a versão mais recente do [Python](https://www.python.org/downloads/){:target="_blank"} instalado em sua máquina.
 - Possuir o sistema operacional `< Windows >`.
 
-## 🚀 Instalando <nome_do_projeto>
+## 🚀 Instalando <Solutec ADmin>
 
 Para instalar o `<Solutec Admin v2>`, siga estas etapas:
 
