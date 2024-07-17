@@ -4,6 +4,8 @@ import pyautogui
 import pynput
 import threading
 import time
+import requests
+import json
 from tkinter import messagebox
 from pynput.keyboard import Key, Listener
 from PIL import Image
@@ -12,6 +14,21 @@ from loginframe import LoginFrame  # Importando a janela de login
 version = "1.0"
 keyboard_listener = None  # Variável global para armazenar o listener do teclado
 keyboard_listenerCancel = None
+
+rawUrlVersion = ''
+
+try:
+    response = requests.get(rawUrlVersion)
+    response.raise_for_status() # Verifica se houve algum erro na requisição
+
+    # Converte a resposta JSON
+    data = response.json()
+    print(json.dumps(data, indent=4))
+
+except requests.exceptions.HTTPError as http_err:
+    print(f"HTTP error occurred: {http_err}")
+except Exception as err:
+    print(f"Other error occurred: {err}")
 
 class Main:
     @staticmethod
