@@ -15,7 +15,7 @@ version = "1.0"
 keyboard_listener = None  # Variável global para armazenar o listener do teclado
 keyboard_listenerCancel = None
 
-rawUrlVersion = ''
+rawUrlVersion = 'https://raw.githubusercontent.com/kdumr/Solutec-Admin-v2/main/version.json'
 
 try:
     response = requests.get(rawUrlVersion)
@@ -29,6 +29,7 @@ except requests.exceptions.HTTPError as http_err:
     print(f"HTTP error occurred: {http_err}")
 except Exception as err:
     print(f"Other error occurred: {err}")
+    print(err)
 
 class Main:
     @staticmethod
