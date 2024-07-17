@@ -11,28 +11,39 @@ from pynput.keyboard import Key, Listener
 from PIL import Image
 from loginframe import LoginFrame  # Importando a janela de login
 
-version = "1.0"
+# Exibe a versão do aplicativo
+with open('version.json', 'r') as arquivoVersion:
+    dados = json.load(arquivoVersion)
+version = dados['version']
+
 keyboard_listener = None  # Variável global para armazenar o listener do teclado
 keyboard_listenerCancel = None
 
-rawUrlVersion = 'https://raw.githubusercontent.com/kdumr/Solutec-Admin-v2/main/version.json'
+def versionCheck():
+        # Faz uma requisição para verificar se a versão do aplicativo é a versão mais recente
+        rawUrlVersion = 'https://raw.githubusercontent.com/kdumr/Solutec-Admin-v2/main/version.json'
+        print("Verificando versão...")
+        try:
+            response = requests.get(rawUrlVersion)
+            response.raise_for_status() # Verifica se houve algum erro na requisição
+            # Converte a resposta JSON
+            data = response.json()
+            print(data['version'])
 
-try:
-    response = requests.get(rawUrlVersion)
-    response.raise_for_status() # Verifica se houve algum erro na requisição
+            # Se a versão do programa for menor que a versão da url mostra a messagebox
+            if data['version'] > version:
+                ask = messagebox.askyesno(f"Versão atual: {dados['version']}", f"Uma nova versão está disponível: {data['version']}\nDeseja atualizar?")
+                if ask:
+                    print("Escolheu 'sim'")
 
-    # Converte a resposta JSON
-    data = response.json()
-    print(json.dumps(data, indent=4))
-
-except requests.exceptions.HTTPError as http_err:
-    print(f"HTTP error occurred: {http_err}")
-except Exception as err:
-    print(f"Other error occurred: {err}")
-    print(err)
-
+        except requests.exceptions.HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+        except Exception as err:
+            print(f"Other error occurred: {err}")
+            print(err)
 class Main:
     @staticmethod
+
     def main():
         ctk.set_appearance_mode("System")
         ctk.set_default_color_theme("blue")
@@ -281,7 +292,10 @@ def show_login_frame():
 
 if __name__ == "__main__":
     try:
+        threadVersionCheck = threading.Thread(target=versionCheck)
+        threadVersionCheck.start()
         Main.main()
+        
     except Exception as e:
         print(e)
         messagebox.showerror("Erro", f"Houve um erro! {e}")
