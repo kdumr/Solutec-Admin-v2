@@ -3,9 +3,9 @@
 ![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
 ![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/iuricode/README-template?style=for-the-badge)
 
-<img src="https://raw.githubusercontent.com/kdumr/Solutec-Admin-v2/main/assets/img/logo.png" alt="Logo Solutec Admin">
+<img src="https://raw.githubusercontent.com/kdumr/Solutec-Admin-v2/main/assets/img/logo.png" alt="Logo Solutec Admin" min-width="400px" max-width="400px" width="400px" >
 
-> Linha adicional de texto informativo sobre o que o projeto faz. Sua introdução deve ter cerca de 2 ou 3 linhas. Não exagere, as pessoas não vão ler.
+> Versão 2 do painel "Solutec Admin" destinado a profissionais que gerenciam diretamente CPEs (Customer Premises Equipment).
 
 ### Ajustes e melhorias
 
