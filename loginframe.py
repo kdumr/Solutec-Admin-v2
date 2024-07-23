@@ -81,6 +81,7 @@ class LoginFrame(ctk.CTkToplevel):
             self.login_button.configure(state="normal")
             return
         elif username == "admin" or password == "admin":
+            
             self.show_error("Você está logado.", "lightgreen", "assets/img/circle-check-regular.png")
             gerenciar_cpe_window = GerenciarCPE(master=self.master)  # Abrir a nova janela
             self.destroy()  # Fechar a janela de login
