@@ -2,6 +2,8 @@ import customtkinter as ctk
 import pyperclip
 import pyautogui
 import pynput
+import subprocess
+import os
 import threading
 import time
 import requests
@@ -19,6 +21,9 @@ version = dados['version']
 keyboard_listener = None  # Variável global para armazenar o listener do teclado
 keyboard_listenerCancel = None
 
+# Variável global para armazenar credenciais
+credentials = {"username": None, "password": None}
+
 def versionCheck():
         # Faz uma requisição para verificar se a versão do aplicativo é a versão mais recente
         rawUrlVersion = 'https://raw.githubusercontent.com/kdumr/Solutec-Admin-v2/main/version.json'
@@ -35,6 +40,10 @@ def versionCheck():
                 ask = messagebox.askyesno(f"Versão atual: {dados['version']}", f"Uma nova versão está disponível: {data['version']}\nDeseja atualizar?")
                 if ask:
                     print("Escolheu 'sim'")
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    exe_path = os.path.join(current_dir, "update.exe")
+                    subprocess.run(exe_path)
+                    
 
         except requests.exceptions.HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
@@ -50,7 +59,10 @@ class Main:
 
         root = ctk.CTk()
         root.title("Solutec Admin")
-        root.iconbitmap("icon.ico")
+        #root.iconbitmap("icon.ico")
+        root.iconbitmap('icon.ico')         # icon set only on root
+        root.iconbitmap(bitmap='icon.ico')  # same as above
+        root.iconbitmap(default='icon.ico') # icon set on root and all TopLevels
         root.geometry("350x480")
         root.wm_minsize(350, 480)
         root.wm_maxsize(400, 480)
@@ -299,3 +311,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
         messagebox.showerror("Erro", f"Houve um erro! {e}")
+    input("a")
