@@ -12,6 +12,8 @@ from tkinter import messagebox
 from pynput.keyboard import Key, Listener
 from PIL import Image
 from loginframe import LoginFrame  # Importando a janela de login
+from gerenciarcpe import GerenciarCPE 
+from config import config
 
 # Exibe a versão do aplicativo
 with open('version.json', 'r') as arquivoVersion:
@@ -20,9 +22,6 @@ version = dados['version']
 
 keyboard_listener = None  # Variável global para armazenar o listener do teclado
 keyboard_listenerCancel = None
-
-# Variável global para armazenar credenciais
-credentials = {"username": None, "password": None}
 
 def versionCheck():
         # Faz uma requisição para verificar se a versão do aplicativo é a versão mais recente
@@ -57,22 +56,24 @@ class Main:
         ctk.set_appearance_mode("System")
         ctk.set_default_color_theme("blue")
 
-        root = ctk.CTk()
-        root.title("Solutec Admin")
+        global rootMain
+
+        rootMain = ctk.CTk()
+        rootMain.title("Solutec Admin")
         #root.iconbitmap("icon.ico")
-        root.iconbitmap('icon.ico')         # icon set only on root
-        root.iconbitmap(bitmap='icon.ico')  # same as above
-        root.iconbitmap(default='icon.ico') # icon set on root and all TopLevels
-        root.geometry("350x480")
-        root.wm_minsize(350, 480)
-        root.wm_maxsize(400, 480)
+        rootMain.iconbitmap('icon.ico')         # icon set only on root
+        rootMain.iconbitmap(bitmap='icon.ico')  # same as above
+        rootMain.iconbitmap(default='icon.ico') # icon set on root and all TopLevels
+        rootMain.geometry("350x480")
+        rootMain.wm_minsize(350, 480)
+        rootMain.wm_maxsize(400, 480)
 
         # Frame principal para centralização
-        frame = ctk.CTkFrame(root, fg_color="transparent")
+        frame = ctk.CTkFrame(rootMain, fg_color="transparent")
         frame.pack()
 
         # Novo frame para colar macs
-        paste_frame = ctk.CTkFrame(root, fg_color="transparent")
+        paste_frame = ctk.CTkFrame(rootMain, fg_color="transparent")
         paste_frame.pack_forget()
 
         one_label = ctk.CTkLabel(paste_frame, text="Use a tecla [END] para colar os mac's\nem sequência.", padx=10, pady=10, font=("Arial", 15))
@@ -97,8 +98,8 @@ class Main:
         paste_frame.grid_columnconfigure(0, weight=1)
 
         # Funções:
-
-        macArray = []
+        global macArray
+        macArray = ["00:11:22:33:44:55", "00:5F:67:5C:C8:FA", "6C:5A:B0:5E:F7:08", "70:4F:57:23:99:BC", "3C:84:6A:A1:BD:3F"]
         def cancelar(key):
             if key == Key.home:
                 return False
@@ -293,14 +294,36 @@ class Main:
         version_label.grid(row=6, column=1, padx=5, sticky="e")  # Alinhar à direita
 
         # Definir o foco para macEntry após a GUI ser carregada
-        root.after(100, lambda: macEntry.focus_set())
+        rootMain.after(100, lambda: macEntry.focus_set())
 
         # Iniciando a janela principal
-        root.mainloop()
+        rootMain.mainloop()
+
+def show_main_window():
+    rootGerenciar.destroy()
+    rootMain.deiconify()
+
+def hide_main_window():
+    rootMain.withdraw()
 
 def show_login_frame():
-    login_window = LoginFrame()
-    login_window.grab_set()  # Faz a janela de login modal (foco exclusivo)
+    if not config.credentials["username"] or not config.credentials["password"]:
+        login_window = LoginFrame()
+        login_window.grab_set()  # Faz a janela de login modal (foco exclusivo)
+        login_window.wait_window()  # Espera a janela de login ser fechada
+
+        # Verifica se o login foi bem-sucedido
+        if login_window.login_success:
+            global rootGerenciar
+            hide_main_window()
+            rootGerenciar = GerenciarCPE(rootMain, mac_array=macArray)
+            rootGerenciar.protocol("WM_DELETE_WINDOW", show_main_window)
+        else:
+            print("Login falhou ou foi cancelado.")
+    else:
+        rootGerenciar = GerenciarCPE(rootMain, mac_array=macArray)
+        rootGerenciar.protocol("WM_DELETE_WINDOW", show_main_window)
+
 
 if __name__ == "__main__":
     try:

@@ -3,6 +3,7 @@ import requests
 import threading
 from PIL import Image
 from gerenciarcpe import GerenciarCPE 
+from config import config  # Importa a variável global de credenciais
 
 class LoginFrame(ctk.CTkToplevel):
     def __init__(self, master=None):
@@ -15,6 +16,9 @@ class LoginFrame(ctk.CTkToplevel):
 
         self.create_widgets()
 
+        # Variável para armazenar o status do login
+        self.login_success = False
+
         # Centralizar a janela na tela
         window_width = 300
         window_height = 300
@@ -23,6 +27,7 @@ class LoginFrame(ctk.CTkToplevel):
         position_top = int(screen_height / 2 - window_height / 2)
         position_right = int(screen_width / 2 - window_width / 2)
         self.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
+        
 
     def create_widgets(self):
         self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -60,6 +65,7 @@ class LoginFrame(ctk.CTkToplevel):
 
         self.password_entry = ctk.CTkEntry(self.main_frame, placeholder_text="Password", width=200, show="*")
         self.password_entry.pack(pady=5)
+        self.password_entry.bind("<Return>", lambda event: self.start_login_thread())
 
         self.login_button = ctk.CTkButton(self.main_frame, text="Login", command=self.start_login_thread)
         self.login_button.pack(pady=20)
@@ -80,11 +86,20 @@ class LoginFrame(ctk.CTkToplevel):
             self.show_error("Digite o usuário e a senha!", "lightcoral", "assets/img/circle-exclamation-solid.png")
             self.login_button.configure(state="normal")
             return
-        elif username == "admin" or password == "admin":
-            
+        
+
+        # Excluir essa lógica antes de publicar o código
+        elif username == "adm" and password == "adm":
+            # Salva as credenciais
+            config.credentials["username"] = username
+            config.credentials["password"] = password
+
             self.show_error("Você está logado.", "lightgreen", "assets/img/circle-check-regular.png")
-            gerenciar_cpe_window = GerenciarCPE(master=self.master)  # Abrir a nova janela
+
+            self.login_button.configure(state="normal")
             self.destroy()  # Fechar a janela de login
+
+
         else:
             try:
                 response = requests.get(f"https://flashman.gigalink.net.br/api/v2/device/update/", auth=(username, password))
@@ -92,13 +107,18 @@ class LoginFrame(ctk.CTkToplevel):
                 if responseLicense == 401:
                     self.show_error("Usuário ou senha inválidos.", "lightcoral", "assets/img/circle-exclamation-solid.png")
                 elif responseLicense == 404: # Caso o login for sucedido
+                    # Salva as credenciais
+                    config.credentials["username"] = username
+                    config.credentials["password"] = password
                     
                     self.show_error("Você está logado.", "lightgreen", "assets/img/circle-check-regular.png")
+                    
+                    self.login_success = True  # Ou False se não for bem-sucedido
+                    self.login_button.configure(state="normal")
+                    self.destroy()  # Fechar a janela de login
 
             except Exception as erro:
                 self.show_error(f"Erro: {erro}", "lightcoral", "assets/img/circle-exclamation-solid.png")
-            finally:
-                self.login_button.configure(state="normal")
 
     def show_error(self, message, color, icon_path):
         self.error_frame.configure(fg_color=color)
@@ -120,10 +140,13 @@ class LoginFrame(ctk.CTkToplevel):
     def hide_error_frame(self):
         self.error_frame.pack_forget()
         self.main_frame.pack_configure(pady=0)  # Ajusta a posição do frame principal
+    
+
 
 # Teste da aplicação
 if __name__ == "__main__":
     root = ctk.CTk()
     root.iconbitmap("icon.ico")  # Certifique-se de que o caminho está correto e o formato do ícone está correto
     app = LoginFrame(master=root)
+    root.protocol("WM_DELETE_WINDOW", print("aaa"))
     app.mainloop()
