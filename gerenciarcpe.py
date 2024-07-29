@@ -17,7 +17,7 @@ class GerenciarCPE(ctk.CTkToplevel):
         super().__init__(master)
         self.title("Gerenciar CPE's")
         self.geometry("600x400")  # Aumentar o tamanho da janela
-        self.resizable(False, False)
+        #self.resizable(False, False)
         self.protocol("WM_DELETE_WINDOW", close)
 
         # Centralizar a janela na tela
@@ -42,7 +42,7 @@ class GerenciarCPE(ctk.CTkToplevel):
         self.table_frame.pack(pady=10, fill="both", expand=True)
 
         # Cabeçalho da tabela
-        self.headers = ["Tipo de CPE", "Online/Offline", "MAC", "Versão Firmware", "License"]
+        self.headers = ["Tipo de CPE", "Conexão", "Online/Offline", "MAC", "IPv6", "Versão Firmware", "License"]
         self.header_labels = []
         for col, header in enumerate(self.headers):
             header_label = ctk.CTkLabel(self.table_frame, text=header, font=("Arial", 12, "bold"))
@@ -90,8 +90,12 @@ class GerenciarCPE(ctk.CTkToplevel):
         for row, mac in enumerate(self.mac_array, start=1):
             try:
                 response = requests.get(f"https://flashman.gigalink.net.br/api/v2/device/update/{mac}", auth=(config.credentials["username"], config.credentials["password"]))
+                payloadLicense = {'id': mac}
+                responseLicense = requests.put(f"https://flashman.gigalink.net.br/api/v2/device/license/get", auth=(config.credentials["username"], config.credentials["password"]), json=payloadLicense)
+                exit = responseLicense.json().get("status")
                 responseUP = requests.put(f"https://flashman.gigalink.net.br/api/v2/device/command/{mac}/upstatus", auth=(config.credentials["username"], config.credentials["password"]))
-
+                
+                # Verifica se o CPE está online ou offline
                 status = responseUP.json().get("success")
                 if status == True:
                     statusPath = "assets/img/circle-solid-green.png"
@@ -106,32 +110,55 @@ class GerenciarCPE(ctk.CTkToplevel):
                     wStatus = 10
                     hStatus = 15
 
+                # Caso o cpe não exista:
                 if response.status_code == 404:
                     online_status = "N/A"
                     firmware_version = "N/A"
                     license_status = "N/A"
-                    cpe_type = "Não cadastrado"
+                    ipv6Status = ""
+                    conection_type = None
+                    cpe_type = None
                     licensePath = "assets/img/question-solid.png"
                     wLicense = 10
                     hLicense = 15
+                # Caso Exista:
                 else:
                     response.raise_for_status()
                     apiJson = response.json()
                     firmware_version = apiJson.get("installed_release", "N/A")
                     is_license_active = apiJson.get("is_license_active", None)
                     useTr069 = apiJson.get("use_tr069")
+                    ipv6Status = apiJson.get("ipv6_enabled")
+                    conection_type = apiJson.get("connection_type")
+
+                    if conection_type == "dhcp":
+                        conection_type = "DHCP"
+                    elif conection_type == "pppoe":
+                        conection_type = "PPPoE"
+                    else:
+                        conection_type = None
+
+                    # Verifica o tipo de CPE
                     if useTr069 == True:
                         cpe_type = "TR-069"
                     elif useTr069 == False:
                         cpe_type = "Firmware"
                     else:
                         cpe_type = None
-                    if is_license_active is None:
+
+                    # Verifica o status do IPv6            
+                    if ipv6Status == 1:
+                        ipv6Status = "IPv6"
+                    if ipv6Status == 0:
+                        ipv6Status = "IPv4"
+
+                    # Verifca se a licença está bloqueada
+                    if exit is None:
                         license_status = "N/A"
                         licensePath = "assets/img/question-solid.png"
                         wLicense = 10
                         hLicense = 15
-                    elif is_license_active:
+                    elif exit:
                         license_status = "Active"
                         licensePath = "assets/img/lock-open-solid.png"
                         wLicense = 15
@@ -145,7 +172,9 @@ class GerenciarCPE(ctk.CTkToplevel):
             except requests.HTTPError as http_err:
                 online_status = "N/A"
                 firmware_version = "N/A"
+                conection_type = "N/A"
                 license_status = "N/A"
+                ipv6Status = ""
                 cpe_type = "N/A"
                 licensePath = "assets/img/question-solid.png"
                 wLicense = 10
@@ -153,14 +182,16 @@ class GerenciarCPE(ctk.CTkToplevel):
             except Exception as err:
                 online_status = "N/A"
                 firmware_version = "N/A"
+                conection_type = "N/A"
                 license_status = "N/A"
+                ipv6Status = ""
                 cpe_type = "N/A"
                 licensePath = "assets/img/question-solid.png"
                 wLicense = 10
                 hLicense = 15
 
             # Armazenar os dados coletados
-            self.data_to_display.append((row, mac, cpe_type, statusPath, wStatus, hStatus, firmware_version, licensePath, wLicense, hLicense))
+            self.data_to_display.append((row, mac, cpe_type, conection_type, statusPath, wStatus, hStatus, ipv6Status, firmware_version, licensePath, wLicense, hLicense))
 
         # Atualizar a interface na thread principal
         self.after(0, self.display_data)
@@ -172,22 +203,30 @@ class GerenciarCPE(ctk.CTkToplevel):
 
         # Atualizar a tabela com os dados armazenados
         for row_data in self.data_to_display:
-            row, mac, cpe_type, statusPath, wStatus, hStatus, firmware_version, licensePath, wLicense, hLicense = row_data
+            row, mac, cpe_type, conection_type, statusPath, wStatus, hStatus, ipv6Status, firmware_version, licensePath, wLicense, hLicense = row_data
 
-            cpe_type_label = ctk.CTkLabel(self.table_frame, text=cpe_type, font=("Arial", 12, "bold"), fg_color="#4db6ac", corner_radius=5, text_color="white", width=80, height=20)
-            cpe_type_label.grid(row=row, column=0, padx=10, pady=5)
+            if cpe_type:
+                cpe_type_label = ctk.CTkLabel(self.table_frame, text=cpe_type, font=("Arial", 12, "bold"), fg_color="#4db6ac", corner_radius=5, text_color="white", width=70, height=20)
+                cpe_type_label.grid(row=row, column=0, padx=10, pady=5)
+            
+            if conection_type:
+                conection_type_label = ctk.CTkLabel(self.table_frame, text=conection_type, font=("Arial", 11, "bold"), fg_color="#4db6ac", corner_radius=5, text_color="white", width=50, height=20)
+                conection_type_label.grid(row=row, column=1, padx=10, pady=5)
 
             online_label = ctk.CTkLabel(self.table_frame, image=self.showIcon(statusPath, wStatus, hStatus), text="")
-            online_label.grid(row=row, column=1, padx=10, pady=5, sticky="ew")
+            online_label.grid(row=row, column=2, padx=10, pady=5, sticky="ew")
 
             mac_label = ctk.CTkLabel(self.table_frame, text=mac, font=("Arial", 12))
-            mac_label.grid(row=row, column=2, padx=10, pady=5, sticky="ew")
+            mac_label.grid(row=row, column=3, padx=10, pady=5, sticky="ew")
+
+            ipv6_label = ctk.CTkLabel(self.table_frame, text=ipv6Status, font=("Arial", 12))
+            ipv6_label.grid(row=row, column=4, padx=10, pady=5, sticky="ew")
 
             firmware_label = ctk.CTkLabel(self.table_frame, text=firmware_version, font=("Arial", 12))
-            firmware_label.grid(row=row, column=3, padx=10, pady=5, sticky="ew")
+            firmware_label.grid(row=row, column=5, padx=10, pady=5, sticky="ew")
 
             license_label = ctk.CTkLabel(self.table_frame, image=self.showIcon(licensePath, wLicense, hLicense), text="")
-            license_label.grid(row=row, column=4, padx=10, pady=5, sticky="ew")
+            license_label.grid(row=row, column=6, padx=10, pady=5, sticky="ew")
 
         # Reabilitar o botão de atualização
         self.enable_update_button()

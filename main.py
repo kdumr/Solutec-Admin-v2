@@ -99,7 +99,8 @@ class Main:
 
         # Funções:
         global macArray
-        macArray = ["00:11:22:33:44:55", "00:5F:67:5C:C8:FA", "6C:5A:B0:5E:F7:08", "70:4F:57:23:99:BC", "3C:84:6A:A1:BD:3F"]
+        #macArray = ["00:11:22:33:44:55", "00:5F:67:5C:C8:FA", "6C:5A:B0:5E:F7:08", "70:4F:57:23:99:BC", "3C:84:6A:A1:BD:3F"]
+        macArray = []
         def cancelar(key):
             if key == Key.home:
                 return False
@@ -321,8 +322,16 @@ def show_login_frame():
         else:
             print("Login falhou ou foi cancelado.")
     else:
-        rootGerenciar = GerenciarCPE(rootMain, mac_array=macArray)
-        rootGerenciar.protocol("WM_DELETE_WINDOW", show_main_window)
+        try:
+            if macArray == []:
+                messagebox.showerror("Erro!", "A lista de MAC's está vazia.")
+            else:
+                response = requests.get(f"https://flashman.gigalink.net.br/api/v2/device/update/")
+                print(response)
+                rootGerenciar = GerenciarCPE(rootMain, mac_array=macArray)
+                rootGerenciar.protocol("WM_DELETE_WINDOW", show_main_window)
+        except:
+            messagebox.showerror("Erro!", "Não foi possível estabelecer conexão com a API do Flashman.")
 
 
 if __name__ == "__main__":
