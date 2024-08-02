@@ -16,7 +16,7 @@ from gerenciarcpe import GerenciarCPE
 from config import config
 
 # Exibe a versão do aplicativo
-with open('version.json', 'r') as arquivoVersion:
+with open('config.json', 'r') as arquivoVersion:
     dados = json.load(arquivoVersion)
 version = dados['version']
 
@@ -25,7 +25,7 @@ keyboard_listenerCancel = None
 
 def versionCheck():
         # Faz uma requisição para verificar se a versão do aplicativo é a versão mais recente
-        rawUrlVersion = 'https://raw.githubusercontent.com/kdumr/Solutec-Admin-v2/main/version.json'
+        rawUrlVersion = 'https://raw.githubusercontent.com/kdumr/Solutec-Admin-v2/main/config.json'
         print("Verificando versão...")
         try:
             response = requests.get(rawUrlVersion)
@@ -308,30 +308,34 @@ def hide_main_window():
     rootMain.withdraw()
 
 def show_login_frame():
-    if not config.credentials["username"] or not config.credentials["password"]:
-        login_window = LoginFrame()
-        login_window.grab_set()  # Faz a janela de login modal (foco exclusivo)
-        login_window.wait_window()  # Espera a janela de login ser fechada
+    if not macArray == []:
+        if not config.credentials["username"] or not config.credentials["password"]:
+            login_window = LoginFrame()
+            login_window.grab_set()  # Faz a janela de login modal (foco exclusivo)
+            login_window.wait_window()  # Espera a janela de login ser fechada
 
-        # Verifica se o login foi bem-sucedido
-        if login_window.login_success:
-            global rootGerenciar
-            hide_main_window()
-            rootGerenciar = GerenciarCPE(rootMain, mac_array=macArray)
-            rootGerenciar.protocol("WM_DELETE_WINDOW", show_main_window)
-        else:
-            print("Login falhou ou foi cancelado.")
-    else:
-        try:
-            if macArray == []:
-                messagebox.showerror("Erro!", "A lista de MAC's está vazia.")
-            else:
-                response = requests.get(f"https://flashman.gigalink.net.br/api/v2/device/update/")
-                print(response)
+            # Verifica se o login foi bem-sucedido
+            if login_window.login_success:
+                global rootGerenciar
+                hide_main_window()
                 rootGerenciar = GerenciarCPE(rootMain, mac_array=macArray)
                 rootGerenciar.protocol("WM_DELETE_WINDOW", show_main_window)
-        except:
-            messagebox.showerror("Erro!", "Não foi possível estabelecer conexão com a API do Flashman.")
+            else:
+                print("Login falhou ou foi cancelado.")
+        else:
+            try:
+                if macArray == []:
+                    messagebox.showerror("Erro!", "A lista de MAC's está vazia.")
+                else:
+                    response = requests.get(f"https://flashman.gigalink.net.br/api/v2/device/update/")
+                    print(response)
+                    rootGerenciar = GerenciarCPE(rootMain, mac_array=macArray)
+                    rootGerenciar.protocol("WM_DELETE_WINDOW", show_main_window)
+            except Exception as e:
+                messagebox.showerror("Erro!", "Não foi possível estabelecer conexão com a API do Flashman.")
+                print(e)
+    else:
+        messagebox.showerror("Erro!", "A lista de MAC's está vazia.")
 
 
 if __name__ == "__main__":
@@ -343,4 +347,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
         messagebox.showerror("Erro", f"Houve um erro! {e}")
-    input("a")

@@ -13,7 +13,7 @@ a = Analysis(
     datas=[
         ('assets/*', 'assets'),  # Inclua todos os arquivos da pasta 'assets'
         ('icon.ico', '.'),       # Inclua o ícone
-        ('version.json', '.'),   # Inclua o arquivo de versão
+        ('config.json', '.'),   # Inclua o arquivo de versão
         ('update.exe', '.')      # Inclua o executável de atualização
     ],
     hiddenimports=[],
@@ -33,7 +33,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name='seu_arquivo',
+    name='solutecadmin',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
