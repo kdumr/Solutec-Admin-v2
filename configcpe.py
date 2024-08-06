@@ -90,6 +90,12 @@ class ConfigCPE(ctk.CTkToplevel):
             pppoe_user = apiJson.get("pppoe_user")
             pppoe_password= apiJson.get("pppoe_password")
 
+            ssid_24ghz = apiJson.get("wifi_ssid")
+            password_24ghz = apiJson.get("password_ssid")
+            wifi_chanell_24ghz = apiJson.get("wifi_channel")
+
+            ssid_5ghz = apiJson.get("wifi_ssid_5ghz")
+            password_5ghz = apiJson.get("password_ssid_5ghz")
 
              # Verifica o tipo de CPE
             if useTr069 == True:
@@ -156,6 +162,25 @@ class ConfigCPE(ctk.CTkToplevel):
         ctk.CTkLabel(self.table_frame, text="Usuário PPPoE", font=("Arial", 12, "bold")).grid(row=5, column=4, padx=10, pady=5)
         ctk.CTkLabel(self.table_frame, text="Senha PPPoE", font=("Arial", 12, "bold")).grid(row=5, column=5, padx=10, pady=5)
 
+        # Titulo Wi-Fi 2.4 GHz
+        ctk.CTkLabel(self.table_frame, text="Wi-Fi 2.4 GHz", font=("Arial", 15, "bold")).grid(row=10, column=0, columnspan=6, padx=10, pady=10, sticky="ew")
+
+        # Header 3
+        ctk.CTkLabel(self.table_frame, text="Canal do Wi-Fi", font=("Arial", 12, "bold")).grid(row=11, column=0, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="Largura de banda", font=("Arial", 12, "bold")).grid(row=11, column=1, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="Modo de operação", font=("Arial", 12, "bold")).grid(row=11, column=2, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="SSID do Wi-Fi", font=("Arial", 12, "bold")).grid(row=11, column=3, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="Senha do Wi-Fi", font=("Arial", 12, "bold")).grid(row=11, column=4, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="Potência do sinal", font=("Arial", 12, "bold")).grid(row=11, column=5, padx=10, pady=5)
+
+        # Header 4
+        ctk.CTkLabel(self.table_frame, text="Canal do Wi-Fi", font=("Arial", 12, "bold")).grid(row=14, column=0, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="Largura de banda", font=("Arial", 12, "bold")).grid(row=14, column=1, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="Modo de operação", font=("Arial", 12, "bold")).grid(row=14, column=2, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="SSID do Wi-Fi", font=("Arial", 12, "bold")).grid(row=14, column=3, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="Senha do Wi-Fi", font=("Arial", 12, "bold")).grid(row=14, column=4, padx=10, pady=5)
+        ctk.CTkLabel(self.table_frame, text="Potência do sinal", font=("Arial", 12, "bold")).grid(row=14, column=5, padx=10, pady=5)
+        
         # Dados Header 1
         ctk.CTkLabel(self.table_frame, text=useTr069, font=("Arial", 11, "bold"), fg_color="#4db6ac", corner_radius=5, text_color="white", width=65, height=20).grid(row=4, column=0, padx=10, pady=5)
         ctk.CTkLabel(self.table_frame, text="Mesh", font=("Arial", 11, "bold"), fg_color="#4db6ac", corner_radius=5, text_color="white", width=65, height=20).grid(row=5, column=0, padx=10, pady=5)
@@ -185,8 +210,48 @@ class ConfigCPE(ctk.CTkToplevel):
         self.pppoe_password_entry.insert(0, pppoe_password)
         self.pppoe_password_entry.grid(row=6, column=5, padx=10, pady=5)
 
-        # Logica Header 2
+        # Dados Header 3
+        self.wifi_channel_2_4 = ctk.CTkOptionMenu(self.table_frame, values=["Auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"], width=100, height=20)
+        self.wifi_channel_2_4.grid(row=12, column=0, padx=10, pady=5)
 
+        self.bandwidth_2_4 = ctk.CTkOptionMenu(self.table_frame, values=["Auto", "20MHz", "40MHz"], width=100, height=20)
+        self.bandwidth_2_4.grid(row=12, column=1, padx=10, pady=5)
+
+        self.operation_mode_2_4 = ctk.CTkOptionMenu(self.table_frame, values=["BGN", "G"], width=100, height=20)
+        self.operation_mode_2_4.grid(row=12, column=2, padx=10, pady=5)
+
+        self.ssid_entry_2_4 = ctk.CTkEntry(self.table_frame)
+        self.ssid_entry_2_4.grid(row=12, column=3, padx=10, pady=5)
+
+        self.password_entry_2_4 = ctk.CTkEntry(self.table_frame)
+        self.password_entry_2_4.grid(row=12, column=4, padx=10, pady=5)
+
+        self.signal_strength_2_4 = ctk.CTkOptionMenu(self.table_frame, values=["100%", "75%", "50%", "25%"], width=100, height=20)
+        self.signal_strength_2_4.grid(row=12, column=5, padx=10, pady=5)
+
+        # Dados Header 4
+        self.wifi_channel_5 = ctk.CTkOptionMenu(self.table_frame, values=["Auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"], width=100, height=20)
+        self.wifi_channel_5.grid(row=15, column=0, padx=10, pady=5)
+
+        self.bandwidth_5 = ctk.CTkOptionMenu(self.table_frame, values=["Auto", "20MHz", "40MHz"], width=100, height=20)
+        self.bandwidth_5.grid(row=15, column=1, padx=10, pady=5)
+
+        self.operation_mode_5 = ctk.CTkOptionMenu(self.table_frame, values=["BGN", "G"], width=100, height=20)
+        self.operation_mode_5.grid(row=15, column=2, padx=10, pady=5)
+
+        self.ssid_entry_5 = ctk.CTkEntry(self.table_frame)
+        self.ssid_entry_5.grid(row=15, column=3, padx=10, pady=5)
+
+        self.password_entry_5 = ctk.CTkEntry(self.table_frame)
+        self.password_entry_5.grid(row=15, column=4, padx=10, pady=5)
+
+        self.signal_strength_5 = ctk.CTkOptionMenu(self.table_frame, values=["100%", "75%", "50%", "25%"], width=100, height=20)
+        self.signal_strength_5.grid(row=15, column=5, padx=10, pady=5)
+
+        # Titulo Wi-Fi 5 GHz
+        ctk.CTkLabel(self.table_frame, text="Wi-Fi 5 GHz", font=("Arial", 15, "bold")).grid(row=13, column=0, columnspan=6, padx=10, pady=10, sticky="ew")
+
+        # Logica Header 2
         # Muda a opção do Menu referente ao tipo de conexão
         if operation_type == False:
             self.operation_type_menu.set("Modo Roteador")
@@ -246,7 +311,7 @@ class ConfigCPE(ctk.CTkToplevel):
                 payloadFirmware = { 'do_update': 'true' }
                 responseFirmware = requests.put(f'https://flashman.gigalink.net.br/api/v2/device/update/{mac}/{selected_option}', auth=(config.credentials["username"], config.credentials["password"]), json=payloadFirmware)
                 if responseFirmware.json().get("success") == False:
-                    messagebox.showerror("Erro", f"Não foi possível atualizar o firmware do CPE: {mac}")
+                    messagebox.showerror("Erro", f"Não foi possível atualizar o firmware do CPE: {mac}\n{response.json().get("message")}")
                 else:
                     messagebox.showinfo("OK", f"O firmware do CPE: {mac} está sendo atualizado para: {selected_option}\nNão desligue ou desconecte o CPE da rede antes do mesmo reiniciar.")  
             else:

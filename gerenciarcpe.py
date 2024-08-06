@@ -290,9 +290,15 @@ class GerenciarCPE(ctk.CTkToplevel):
             if cpe_type:
                 cpe_type_label = ctk.CTkLabel(self.table_frame, text=cpe_type, font=("Arial", 12, "bold"), fg_color="#4db6ac", corner_radius=5, text_color="white", width=70, height=20)
                 cpe_type_label.grid(row=row, column=1, padx=10, pady=5)
+            else:
+                cpe_type_label = ctk.CTkLabel(self.table_frame, text="Não encontrado", font=("Arial", 12, "bold"), fg_color="#e67e22", corner_radius=5, text_color="white", width=70, height=20)
+                cpe_type_label.grid(row=row, column=1, padx=10, pady=5)
             
             if conection_type:
                 conection_type_label = ctk.CTkLabel(self.table_frame, text=conection_type, font=("Arial", 11, "bold"), fg_color="#4db6ac", corner_radius=5, text_color="white", width=50, height=20)
+                conection_type_label.grid(row=row, column=2, padx=10, pady=5)
+            else:
+                conection_type_label = ctk.CTkLabel(self.table_frame, text="?", font=("Arial", 11, "bold"), fg_color="#e67e22", corner_radius=5, text_color="white", width=50, height=20)
                 conection_type_label.grid(row=row, column=2, padx=10, pady=5)
 
             online_label = ctk.CTkLabel(self.table_frame, image=self.showIcon(statusPath, wStatus, hStatus), text="")
@@ -310,12 +316,12 @@ class GerenciarCPE(ctk.CTkToplevel):
             license_label = ctk.CTkLabel(self.table_frame, image=self.showIcon(licensePath, wLicense, hLicense), text="")
             license_label.grid(row=row, column=7, padx=10, pady=5, sticky="ew")
 
-            self.config_image = ctk.CTkImage(light_image=Image.open("assets/img/gear-solid-light.png"), dark_image=Image.open("assets/img/gear-solid-dark.png"), size=(15, 15)) # Carregar a imagem para o botão
+            self.config_image = ctk.CTkImage(light_image=Image.open("assets/img/gear-solid-dark.png"), dark_image=Image.open("assets/img/gear-solid-dark.png"), size=(15, 15)) # Carregar a imagem para o botão
             config_button = ctk.CTkButton(self.table_frame, image=self.config_image, text="", font=("Arial", 12), width= 30, fg_color="transparent", command=lambda mac=mac: self.open_config_cpe(mac))
             config_button.grid(row=row, column=8, padx=10, pady=5, sticky="ew")
             CTkToolTip(config_button, message="Ir para as configurações do CPE.")
 
-            self.reset_image = ctk.CTkImage(light_image=Image.open("assets/img/rotate-right-solid-light.png"), dark_image=Image.open("assets/img/rotate-right-solid-dark.png"), size=(15, 15)) # Carregar a imagem para o botão
+            self.reset_image = ctk.CTkImage(light_image=Image.open("assets/img/rotate-right-solid-dark.png"), dark_image=Image.open("assets/img/rotate-right-solid-dark.png"), size=(15, 15)) # Carregar a imagem para o botão
             reset_button = ctk.CTkButton(self.table_frame, image=self.reset_image, text="", font=("Arial", 12), width= 30, fg_color="transparent", command=lambda mac=mac: self.firmware_reset(mac))
             reset_button.grid(row=row, column=9, padx=10, pady=5, sticky="ew")
             CTkToolTip(reset_button, message="Resetar para o firmware original")
@@ -333,7 +339,7 @@ class GerenciarCPE(ctk.CTkToplevel):
                 payloadFirmware = { 'do_update': 'true' }
                 responseFirmware = requests.put(f'https://flashman.gigalink.net.br/api/v2/device/update/{mac}/9999-aix', auth=(config.credentials["username"], config.credentials["password"]), json=payloadFirmware)
                 if responseFirmware.json().get("success") == False:
-                    messagebox.showerror("Erro", f"Não foi possível atualizar o firmware do CPE: {mac}")
+                    messagebox.showerror("Erro", f"Não foi possível atualizar o firmware do CPE: {mac}\n{response.json().get("message")}")
                 else:
                     messagebox.showinfo("OK", f"O firmware do CPE: {mac} está sendo resetado.\nNão desligue ou desconecte o CPE da rede antes do mesmo reiniciar.")  
             else:
@@ -401,6 +407,6 @@ class GerenciarCPE(ctk.CTkToplevel):
 if __name__ == "__main__":
     root = ctk.CTk()
     root.iconbitmap("icon.ico")  # Certifique-se de que o caminho está correto e o formato do ícone está correto
-    mac_list = ["MAC1", "MAC2", "MAC3"]  # Substitua com a lista real de MACs
+    mac_list = ["0C:80:63:09:5A:8A", "MAC2", "MAC3"]  # Substitua com a lista real de MACs
     app = GerenciarCPE(master=root, mac_array=mac_list)
     app.mainloop()
